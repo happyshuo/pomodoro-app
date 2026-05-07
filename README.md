@@ -25,6 +25,16 @@ npm install
 npm start
 ```
 
+Or launch directly from **Desktop** (no terminal needed after setup):
+
+```bash
+# Run once from the project directory after npm install
+osacompile -o ~/Desktop/Pomodoro.app \
+  -e 'do shell script "cd /PATH/TO/pomodoro-app && exec ./node_modules/.bin/electron . > /dev/null 2>&1 &"'
+```
+
+Replace `/PATH/TO/pomodoro-app` with your actual project path, then double-click `Pomodoro.app` to start. (First time: right-click → Open to bypass Gatekeeper.)
+
 ## Usage / 使用说明
 
 1. Add tasks in the **待办** tab / 在「待办」标签页中添加任务
