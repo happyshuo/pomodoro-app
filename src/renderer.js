@@ -29,8 +29,14 @@ const statTodayPomodoros = document.querySelector('#statTodayPomodoros');
 const statTodayTasks = document.querySelector('#statTodayTasks');
 const statTodayMinutes = document.querySelector('#statTodayMinutes');
 const historyList = document.querySelector('#historyList');
+const dailyPomosIcons = document.querySelector('#dailyPomosIcons');
+const dailyPomosLabel = document.querySelector('#dailyPomosLabel');
 const tabBtns = document.querySelectorAll('.tab-btn');
 const panels = document.querySelectorAll('.panel');
+const chartSvg = document.querySelector('#chartSvg');
+const chartSummary = document.querySelector('#chartSummary');
+const chartFilters = document.querySelectorAll('.chart-filter');
+let chartPeriod = 'day';
 
 async function loadData() {
   state.data = await window.pomodoroAPI.loadData();
@@ -230,6 +236,23 @@ function renderPomodoroCount() {
   pomodoroCount.textContent = `🍅 ${total}`;
 }
 
+function renderDailyPomodoros() {
+  const todaySessions = getTodaySessions();
+  const workSessions = todaySessions.filter((s) => s.type === PHASE.WORK);
+  const completed = workSessions.length;
+  const goal = state.data.settings.dailyGoal;
+  const displayCount = Math.max(goal, completed);
+
+  let html = '';
+  for (let i = 0; i < displayCount; i++) {
+    const filled = i < completed;
+    html += `<span class="daily-pomo-icon ${filled ? 'filled' : 'empty'}">${filled ? '🍅' : '○'}</span>`;
+  }
+  dailyPomosIcons.innerHTML = html;
+
+  dailyPomosLabel.textContent = `已完成 ${completed}/${goal} 个番茄`;
+}
+
 async function afterTaskMutation() {
   renderTasks();
   renderTaskSelector();
@@ -266,6 +289,7 @@ function renderStats() {
   const workSessions = todaySessions.filter((s) => s.type === PHASE.WORK);
 
   statTodayPomodoros.textContent = workSessions.length;
+  renderDailyPomodoros();
 
   const todayTaskIds = new Set(
     workSessions.filter((s) => s.taskId).map((s) => s.taskId)
@@ -303,6 +327,136 @@ function renderStats() {
     .join('');
 }
 
+function getCSSVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function getChartData(period) {
+  const now = new Date();
+  const sessions = state.data.sessions.filter((s) => s.type === PHASE.WORK);
+  let labels = [];
+  let values = [];
+
+  switch (period) {
+    case 'day': {
+      const currentHour = now.getHours();
+      for (let h = 0; h <= currentHour; h++) {
+        const count = sessions.filter((s) => {
+          const d = new Date(s.endTime);
+          return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate() && d.getHours() === h;
+        }).length;
+        labels.push(`${h}时`);
+        values.push(count);
+      }
+      break;
+    }
+    case 'week': {
+      const dayNames = ['日', '一', '二', '三', '四', '五', '六'];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const ds = d.toISOString().split('T')[0];
+        const count = sessions.filter((s) => s.date === ds).length;
+        labels.push(i === 0 ? '今天' : `周${dayNames[d.getDay()]}`);
+        values.push(count);
+      }
+      break;
+    }
+    case 'month': {
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const ds = d.toISOString().split('T')[0];
+        const count = sessions.filter((s) => s.date === ds).length;
+        labels.push(i % 5 === 0 || i === 29 ? `${d.getMonth() + 1}/${d.getDate()}` : '');
+        values.push(count);
+      }
+      break;
+    }
+  }
+
+  return { labels, values };
+}
+
+function renderChart() {
+  const { labels, values } = getChartData(chartPeriod);
+  const W = 420, H = 220;
+  const PL = 40, PR = 16, PT = 20, PB = 28;
+  const cw = W - PL - PR;
+  const ch = H - PT - PB;
+  const maxVal = Math.max(...values, 1);
+  const n = values.length;
+  const primary = getCSSVar('--primary');
+  const border = getCSSVar('--border');
+  const textSec = getCSSVar('--text-secondary');
+  const surface = getCSSVar('--surface');
+
+  let svgContent = '';
+
+  // Grid lines
+  const grids = 4;
+  for (let i = 0; i <= grids; i++) {
+    const y = PT + (i / grids) * ch;
+    const label = Math.round(maxVal - (i / grids) * maxVal);
+    svgContent += `<line x1="${PL}" y1="${y}" x2="${W - PR}" y2="${y}" stroke="${border}" stroke-width="0.5"/>`;
+    svgContent += `<text x="${PL - 8}" y="${y + 4}" text-anchor="end" fill="${textSec}" font-size="10">${label}</text>`;
+  }
+
+  if (n > 0 && maxVal > 0) {
+    const pts = values.map((v, i) => ({
+      x: PL + (i / Math.max(n - 1, 1)) * cw,
+      y: PT + ch - (v / maxVal) * ch,
+      v,
+    }));
+
+    // Area fill
+    const areaD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
+      + ` L${pts[n - 1].x},${PT + ch} L${pts[0].x},${PT + ch} Z`;
+    svgContent += `<path d="${areaD}" fill="${primary}" opacity="0.12"/>`;
+
+    // Line
+    const lineD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+    svgContent += `<path d="${lineD}" fill="none" stroke="${primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+    // Dots
+    pts.forEach((p) => {
+      svgContent += `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${primary}" stroke="${surface}" stroke-width="2"/>`;
+    });
+
+    // X labels
+    const labelInterval = Math.max(1, Math.floor(n / 7));
+    labels.forEach((l, i) => {
+      if (l && (n <= 12 || i % labelInterval === 0 || i === n - 1)) {
+        const x = PL + (i / Math.max(n - 1, 1)) * cw;
+        svgContent += `<text x="${x}" y="${H - PB + 16}" text-anchor="middle" fill="${textSec}" font-size="9">${l}</text>`;
+      }
+    });
+  } else {
+    // Empty state
+    svgContent += `<text x="${W / 2}" y="${H / 2}" text-anchor="middle" fill="${textSec}" font-size="13">暂无数据</text>`;
+  }
+
+  chartSvg.innerHTML = svgContent;
+
+  // Summary stats
+  const total = values.reduce((a, b) => a + b, 0);
+  const avg = n > 0 ? (total / n).toFixed(1) : '0';
+  chartSummary.innerHTML = `
+    <div class="chart-stat"><span class="chart-stat-value">${total}</span><span class="chart-stat-label">总番茄</span></div>
+    <div class="chart-stat"><span class="chart-stat-value">${avg}</span><span class="chart-stat-label">平均</span></div>
+    <div class="chart-stat"><span class="chart-stat-value">${maxVal}</span><span class="chart-stat-label">峰值</span></div>
+  `;
+}
+
+chartFilters.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    chartFilters.forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    chartPeriod = btn.dataset.period;
+    renderChart();
+  });
+});
+
 tabBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
     tabBtns.forEach((b) => b.classList.remove('active'));
@@ -310,6 +464,7 @@ tabBtns.forEach((btn) => {
     btn.classList.add('active');
     document.getElementById(`${btn.dataset.tab}Panel`).classList.add('active');
     if (btn.dataset.tab === 'stats') renderStats();
+    if (btn.dataset.tab === 'chart') renderChart();
   });
 });
 
@@ -342,6 +497,7 @@ taskList.addEventListener('click', async (e) => {
 
 async function init() {
   await loadData();
+  state.pomodorosCompleted = getTodaySessions().filter((s) => s.type === PHASE.WORK).length;
   state.timeLeft = getPhaseDuration();
   renderTaskSelector();
   renderPomodoroCount();

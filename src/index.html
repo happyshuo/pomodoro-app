@@ -41,6 +41,7 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="tasks">待办</button>
       <button class="tab-btn" data-tab="stats">统计</button>
+      <button class="tab-btn" data-tab="chart">图表</button>
     </div>
 
     <!-- Tasks Panel -->
@@ -68,8 +69,26 @@
           <div class="stat-label">专注分钟</div>
         </div>
       </div>
+      <div class="daily-pomos-section">
+        <h3 class="section-title">今日进度</h3>
+        <div class="daily-pomos-icons" id="dailyPomosIcons"></div>
+        <div class="daily-pomos-label" id="dailyPomosLabel"></div>
+      </div>
       <h3 class="section-title">历史记录</h3>
       <div class="history-list" id="historyList"></div>
+    </div>
+
+    <!-- Chart Panel -->
+    <div class="panel" id="chartPanel">
+      <div class="chart-filters">
+        <button class="chart-filter active" data-period="day">日</button>
+        <button class="chart-filter" data-period="week">周</button>
+        <button class="chart-filter" data-period="month">月</button>
+      </div>
+      <div class="chart-container">
+        <svg id="chartSvg" viewBox="0 0 420 220" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      <div class="chart-summary" id="chartSummary"></div>
     </div>
   </div>
 

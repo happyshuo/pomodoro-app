@@ -451,3 +451,127 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Daily Pomodoro Icons */
+.daily-pomos-section {
+  margin-bottom: 20px;
+}
+
+.daily-pomos-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 0;
+}
+
+.daily-pomo-icon {
+  font-size: 22px;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.daily-pomo-icon.filled {
+  opacity: 1;
+}
+
+.daily-pomo-icon.empty {
+  opacity: 0.25;
+  filter: grayscale(1);
+}
+
+/* Daily goal indicator bar */
+.daily-goal-bar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--border);
+  margin: 4px 0 8px;
+}
+
+.daily-goal-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.daily-pomos-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Chart Panel */
+.chart-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.chart-filter {
+  flex: 1;
+  padding: 6px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-app-region: no-drag;
+  font-family: inherit;
+}
+
+.chart-filter:hover {
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.chart-filter.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.chart-container {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 12px;
+}
+
+.chart-container svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.chart-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.chart-stat {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 12px 8px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.chart-stat-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.chart-stat-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
