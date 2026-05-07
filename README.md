@@ -14,6 +14,7 @@ A minimalist Pomodoro timer desktop app for macOS built with Electron.
 - **Notification Support / 通知提醒** — macOS native notifications when sessions complete (专注和休息结束时系统通知)
 - **Dark Mode / 深色模式** — automatically adapts to macOS appearance settings (自动适配 macOS 深色/浅色模式)
 - **Self-correcting Timer / 自校正计时** — accurate timing even when the window is in the background (窗口后台运行时仍保持精准)
+- **Trend Chart / 趋势图表** — view pomodoro completion trends by day (hourly), week (daily), or month (daily) with SVG line chart (按日/周/月查看番茄完成趋势，SVG 折线图展示)
 
 ## Getting Started / 快速开始
 
@@ -31,6 +32,7 @@ npm start
 3. Click **开始** to start the focus timer / 点击「开始」启动专注计时
 4. When the timer ends, a break session starts automatically / 计时结束后自动进入休息
 5. Check the **统计** tab for daily progress / 在「统计」标签页查看每日进度
+6. Check the **图表** tab for trend charts by day, week, or month / 在「图表」标签页按日/周/月查看趋势
 
 ## Project Structure / 项目结构
 
