@@ -1,0 +1,14 @@
+{
+  "name": "pomodoro-app",
+  "version": "1.0.0",
+  "description": "macOS 番茄钟桌面应用",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "ws": "^8.20.0"
+  }
+}

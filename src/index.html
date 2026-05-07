@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="drag-region"></div>
+
+  <div class="container">
+    <!-- Timer Section -->
+    <div class="timer-section">
+      <div class="phase-label" id="phaseLabel">专注</div>
+      <div class="timer-ring">
+        <svg viewBox="0 0 200 200" class="progress-ring">
+          <circle class="progress-bg" cx="100" cy="100" r="88" />
+          <circle class="progress-fill" id="progressFill" cx="100" cy="100" r="88"
+            stroke-dasharray="553" stroke-dashoffset="0" />
+        </svg>
+        <div class="timer-display">
+          <span id="timerMinutes">25</span><span class="timer-sep">:</span><span id="timerSeconds">00</span>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn btn-primary" id="startBtn">开始</button>
+        <button class="btn btn-secondary" id="resetBtn">重置</button>
+      </div>
+    </div>
+
+    <!-- Current Task Selector -->
+    <div class="current-task-section">
+      <select id="taskSelector">
+        <option value="">-- 选择任务 --</option>
+      </select>
+      <span class="pomodoro-count" id="pomodoroCount">🍅 0</span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tasks">待办</button>
+      <button class="tab-btn" data-tab="stats">统计</button>
+    </div>
+
+    <!-- Tasks Panel -->
+    <div class="panel active" id="tasksPanel">
+      <div class="add-task">
+        <input type="text" id="taskInput" placeholder="添加新任务..." />
+        <button class="btn btn-small" id="addTaskBtn">+</button>
+      </div>
+      <div class="task-list" id="taskList"></div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="panel" id="statsPanel">
+      <div class="stats-overview">
+        <div class="stat-card">
+          <div class="stat-value" id="statTodayPomodoros">0</div>
+          <div class="stat-label">今日番茄</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statTodayTasks">0</div>
+          <div class="stat-label">完成任务</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statTodayMinutes">0</div>
+          <div class="stat-label">专注分钟</div>
+        </div>
+      </div>
+      <h3 class="section-title">历史记录</h3>
+      <div class="history-list" id="historyList"></div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
